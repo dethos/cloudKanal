@@ -9,6 +9,10 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
 
+from rauth.service import OAuth2Service
+import webbrowser
+import requests
+
 def home(request):
 	if request.user.is_authenticated():
 		return HttpResponseRedirect("dash")
@@ -74,10 +78,44 @@ def dashboard(request):
 
 @login_required
 def getCloudToken(request):
-	HttpResponse("Hello World!")
-
+	return HttpResponse('')	
 
 @login_required
 def getKanalToken(request):
-	HttpResponse("World Hello")
+	redirect_uri = "http://www.google.pt"
 
+	MEOKanal = OAuth2Service (
+		name='Codebits2012',
+		consumer_key='6f02819ed48f061655965f63cc324592d464115ba524f78bed7e9c98b6139a6b',
+		consumer_secret='56e58fc9e6602ac1ba319fba34fb14ab91f03743edfc629781fe752372d70aa5',
+		access_token_url='https://kanal.pt/api/oauth/access_token',
+		authorize_url='https://kanal.pt/api/oauth'
+	)
+
+	try:
+		code = request.GET['code']
+		
+		data = dict(code=code,
+		grant_type='authorization_code',
+		redirect_uri=redirect_uri)
+
+		access_token = \
+			MEOKanal.get_access_token('POST', data=data).content['access_token']
+
+		credenciais = UserCredentials.objects.get(user=request.user)
+		credenciais.token_kanal = access_token
+		credenciais.save()
+		return HttpResponseRedirect("dash")
+
+	except:
+
+		authorize_url = MEOKanal.get_authorize_url(redirect_uri=redirect_uri,
+			scope='channel.list')
+
+		return HttpResponseRedirect(authorize_url)
+
+	
+
+
+
+	
