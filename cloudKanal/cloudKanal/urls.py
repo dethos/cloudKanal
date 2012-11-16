@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, include, url
-from web.views import home, dashboard, getCloudToken, getKanalToken, ulogin, quit
+from web.views import home, dashboard, getCloudToken, getKanalToken, ulogin, quit, sync_services
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
 admin.autodiscover()
@@ -10,6 +10,7 @@ urlpatterns = patterns('',
     url(r'^dash$', dashboard),
     url(r'^login$', ulogin),
     url(r'^logout$', quit),
+    url(r'^sync$', sync_services),
     url(r'^cloudtoken$', getCloudToken),
     url(r'^kanaltoken$', getKanalToken),
     # url(r'^cloudKanal/', include('cloudKanal.foo.urls')),

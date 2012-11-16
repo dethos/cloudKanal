@@ -10,7 +10,6 @@ from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
 
 from rauth.service import OAuth2Service
-import webbrowser
 import requests
 
 def home(request):
@@ -80,6 +79,7 @@ def dashboard(request):
 def getCloudToken(request):
 	return HttpResponse('')	
 
+
 @login_required
 def getKanalToken(request):
 	redirect_uri = "http://www.google.pt"
@@ -114,8 +114,8 @@ def getKanalToken(request):
 
 		return HttpResponseRedirect(authorize_url)
 
-	
 
 
-
-	
+def sync_services(request):
+	print "teste"
+	return HttpResponse("");
