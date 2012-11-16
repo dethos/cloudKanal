@@ -1,0 +1,26 @@
+{% include "header.html" %}
+<body>
+	<div class="topbar" data-scrollspy="scrollspy">
+		<div class="topbar-inner">
+			<div class="container">
+				<a class="brand" href="/">Painel de controlo do Serviço</a>
+				<ul class="nav">
+					<li class="">
+						<a href="/logout">Sair</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+    <div class="container">
+    	<div id="payments" class="content">
+    		<br>
+    		<br>
+    		<br>
+    		<p>{{estado_cloud}} {% if ativo_cloud %} <a href="cloudtoken"> Dar permissão </a> {%endif%}</p>
+            <p>{{estado_kanal}} {% if ativo_kanal %} <a href="kanaltoken"> Dar permissão </a> {%endif%}</p>
+    	</div>
+    </div>
+
+</body>
+{% include "footer.html" %}

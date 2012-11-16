@@ -1,0 +1,29 @@
+{% include "header.html" %}
+<body>
+
+    <div class="container">
+    	<p></p>
+    	<p></p>
+    	<div class="input">
+    		<h1>Identificação:</h1>
+    		{% if message %}<div class="alert-message error">
+    			<a class="close" href="#">×</a>
+    			<p><strong>Oi</strong> {{ message }}</p>
+    		</div>{% endif %}
+	    	<form action="/login" method="post" class="form-stacked">
+	    		{% csrf_token %}
+	    		<label for="user">Nome de Utilizador </label>
+	    		<input id="user" name="username" class="xlarge" size="30" type="text">
+	    		<label for="pass">Password</label> 
+	    		<input id="pass"name="password" class="xlarge" size="30" type="password">
+                <label for="pass">Registo?</label> 
+                <input id="reg" name="registo" type="checkbox">
+	    		</br></br>
+	    		<button class="btn primary">Entrar</button>
+	    	</form>	
+    	</div>
+
+    </div>
+
+</body>
+{% include "footer.html" %}
