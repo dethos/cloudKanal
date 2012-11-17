@@ -1,2 +1,2 @@
 #! /bin/bash
-curl http://localhost:8000/sync
+curl http://62.28.238.110:8000/sync

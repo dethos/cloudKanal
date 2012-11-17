@@ -48,7 +48,6 @@ def ulogin(request):
                 return HttpResponseRedirect("dash")
             
         except:
-            return render_to_response("home.html", {'message':"erro"}, context_instance=RequestContext(request))
             user = authenticate(username=username, password=password)
             if user is not None:
                 if user.is_active:
@@ -97,6 +96,7 @@ def getCloudToken(request):
         header_auth=True)
 
     credenciais = UserCredentials.objects.get(user=request.user)
+    print "TOKEN: "+credenciais.request_token
     if credenciais.request_token == "":
         request_token, request_token_secret = \
         cloud.get_request_token(method='GET')
@@ -104,8 +104,10 @@ def getCloudToken(request):
 
     try:
         pin = request.GET['pin']
+	print "PIN:"+pin
         request_token = credenciais.request_token
         request_token_secret = credenciais.request_token_secret
+	print "TOKEN2: "+credenciais.request_token
 
         response = cloud.get_access_token('GET',
                                          request_token=request_token,
