@@ -9,7 +9,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
 
-from rauth.service import OAuth2Service
+from rauth.service import OAuth2Service, OAuth1Service
 import requests
 import json
 
@@ -86,7 +86,7 @@ def dashboard(request):
 @login_required
 def getCloudToken(request):
     cloud = OAuth1Service (
-        name='CodebitsAPP',
+        name='Codebits2012',
         consumer_key='b36e70f8-d8c1-4805-8402-bd06cdc432dc',
         consumer_secret='53769013013732849764145905535233908903',
         access_token_url='https://cloudpt.pt/oauth/access_token',
@@ -101,12 +101,13 @@ def getCloudToken(request):
 
     try:
         pin = request.GET['pin']
+	print pin
         response = cloud.get_access_token('GET',
                                          request_token=request_token,
                                          request_token_secret=request_token_secret,
                                          params={'oauth_verifier': pin})
         data = response.content
-
+	print data
         access_token = data['oauth_token']
         access_token_secret = data['oauth_token_secret']
 
