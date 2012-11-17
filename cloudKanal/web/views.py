@@ -40,6 +40,8 @@ def ulogin(request):
                 credenciais.token_kanal = ""
                 credenciais.secret_cloud = ""
                 credenciais.last = ""
+                credenciais.request_token = ""
+                credenciais.request_token_secret = ""
                 credenciais.save()
                 user = authenticate(username=username, password=password)
                 login(request, user)
@@ -94,20 +96,23 @@ def getCloudToken(request):
         request_token_url='https://cloudpt.pt/oauth/request_token',
         header_auth=True)
 
-    request_token, request_token_secret = \
-    cloud.get_request_token(method='GET')
-
-    authorize_url = cloud.get_authorize_url(request_token)
+    credenciais = UserCredentials.objects.get(user=request.user)
+    if credenciais.request_token == "":
+        request_token, request_token_secret = \
+        cloud.get_request_token(method='GET')
+        authorize_url = cloud.get_authorize_url(request_token)
 
     try:
         pin = request.GET['pin']
-	print pin
+        request_token = credenciais.request_token
+        request_token_secret = credenciais.request_token_secret
+
         response = cloud.get_access_token('GET',
                                          request_token=request_token,
                                          request_token_secret=request_token_secret,
                                          params={'oauth_verifier': pin})
         data = response.content
-	print data
+        print data
         access_token = data['oauth_token']
         access_token_secret = data['oauth_token_secret']
 
@@ -115,8 +120,12 @@ def getCloudToken(request):
         credenciais.token_cloud = access_token
         credenciais.secret_cloud = access_token_secret
         credenciais.save()
+        return HttpResponseRedirect('dash')
 
     except:
+        credenciais.request_token = request_token
+        credenciais.request_token_secret = request_token_secret
+        credenciais.save()
         return HttpResponseRedirect(authorize_url)
 
 
@@ -148,7 +157,6 @@ def getKanalToken(request):
         return HttpResponseRedirect("dash")
 
     except:
-
         authorize_url = MEOKanal.get_authorize_url(redirect_uri=redirect_uri,
             scope='channel.list')
 

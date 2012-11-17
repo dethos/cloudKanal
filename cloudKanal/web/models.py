@@ -8,6 +8,8 @@ class UserCredentials(models.Model):
 	secret_cloud = models.CharField(max_length=150, null=True)
 	token_kanal = models.CharField(max_length=150, null=True)
 	last = models.TextField(null=True)
+	request_token = models.CharField(max_length=150, null=True)
+	request_token_secret = models.CharField(max_length=150, null=True)
 
 class Channel(models.Model):
 	user = models.ForeignKey(User)
