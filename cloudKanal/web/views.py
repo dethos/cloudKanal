@@ -11,7 +11,7 @@ from django.contrib.auth.decorators import login_required
 
 from rauth.service import OAuth2Service
 import requests
-import simplejson as json
+import json
 
 def home(request):
     if request.user.is_authenticated():
@@ -121,7 +121,7 @@ def getCloudToken(request):
 
 @login_required
 def getKanalToken(request):
-    redirect_uri = "http://www.google.pt"
+    redirect_uri = "http://62.28.238.110:8000/kanaltoken"
 
     MEOKanal = OAuth2Service (
         name='Codebits2012',
@@ -153,15 +153,12 @@ def getKanalToken(request):
 
         return HttpResponseRedirect(authorize_url)
 
-
-
 def sync_services(request):
     users = User.objects.all()
     for user in users:
         credencial = UserCredentials.objects.get(user=user)
-        changes(credencial, "/")
-    return HttpResponse("");
-
+        changes(credencial, "/MEOKanal")
+    return True;
 
 ##Auxiliares
 def changes(credencial, path):
@@ -170,28 +167,147 @@ def changes(credencial, path):
     if content['hash'] != last['hash']:
         for item in content['contents']:
             if item['is_dir'] is False:
-                verifyChanges(item, last)
+                if len(old) > 0:
+                    verifyChanges(credencial, item, last)
+                else:
+                    uploadItem(credencial, item)
+                
         updateRemoved(content, last)
-        return
+        return True
 
-
-def verifyChanges(item, last):
+def verifyChanges(credencial, item, last):
     for old in last['contents']:
         if old['path'] == item['path'] and old['modified'] != item['modified']:
-            removeKanalItem(item['path'])
-            uploadItem(item['path'])
-            return
-    uploadItem(item['path'])
-    return
+            removeKanalItem(credencial, item['path'])
+            uploadItem(credencial, item['path'])
+            return True
+    uploadItem(credencial, item['path'])
+    return True
 
-def removeKanalItem(path):
-    pass
+def findVideo(credencial, path):
+    print "Find video id in MEOKanal"
 
-def uploadItem(path):
-    pass
+    MEOKanal = OAuth2Service (
+        name='Codebits2012',
+        consumer_key='6f02819ed48f061655965f63cc324592d464115ba524f78bed7e9c98b6139a6b',
+        consumer_secret='56e58fc9e6602ac1ba319fba34fb14ab91f03743edfc629781fe752372d70aa5',
+        access_token_url='https://kanal.pt/api/oauth/access_token',
+        authorize_url='https://kanal.pt/api/oauth'
+    )
 
-def UpdateRemovedItem(path):
-    pass     
+    video_name = path.split("/")[-1]
 
-def getCloudContent(path):
-    pass
+    print "Search for name = "+video_name
+    # Get channel list
+    response = MEOKanal.get('https://services.sapo.pt/IPTV/MEO/Kanal/api/videos', 
+        data={'access_token':credencial.token_kanal}, headers={'accept':'application/json'})
+
+    if response.content["success"]:
+        for video in response.content["data"]:
+            if video["title"] is video_name:
+                video_id = video["video_id"]
+                break
+        return video_id
+    else:
+        return -1
+
+def removeKanalItem(credencial, path):
+    # REMOVE Item from MEOKanal
+
+    MEOKanal = OAuth2Service (
+        name='Codebits2012',
+        consumer_key='6f02819ed48f061655965f63cc324592d464115ba524f78bed7e9c98b6139a6b',
+        consumer_secret='56e58fc9e6602ac1ba319fba34fb14ab91f03743edfc629781fe752372d70aa5',
+        access_token_url='https://kanal.pt/api/oauth/access_token',
+        authorize_url='https://kanal.pt/api/oauth'
+    )
+
+    video_id = findVideo(MEOKanal, path)
+
+    print "Video id found = %d" % (video_id)
+
+    if video_id != -1:
+        response = MEOKanal.delete('https://services.sapo.pt/IPTV/MEO/Kanal/api/videos/'+video_id, 
+                data={'access_token':credencial.token_kanal}, headers={'accept':'application/json'})
+
+        if response.content['success']:
+            return True
+        else:
+            return False
+    else:
+        return False
+    
+def getFileFromCloud(credencial, path):
+    print "Getting file from CloudPT"
+
+    response = cloud.get('https://api-content.cloudpt.pt/Storage/CloudPT/Files/cloudpt'+path,
+                access_token=credencial.token_cloud,
+                access_token_secret=credencial.secret_cloud,
+                isFile=True)
+
+    return json.loads(response.content)
+
+def uploadItem(credencial, path):
+    MEOKanal = OAuth2Service (
+        name='Codebits2012',
+        consumer_key='6f02819ed48f061655965f63cc324592d464115ba524f78bed7e9c98b6139a6b',
+        consumer_secret='56e58fc9e6602ac1ba319fba34fb14ab91f03743edfc629781fe752372d70aa5',
+        access_token_url='https://kanal.pt/api/oauth/access_token',
+        authorize_url='https://kanal.pt/api/oauth'
+    )
+
+    f_cloud = getFileFromCloud(credencial, path)
+    print "File downloaded from CloudPT"
+
+    #
+    # SEND file to MEOKanal
+    #
+    
+    data = {
+        'title':path.split("/")[-1], 
+        'channel_id':'30390', 
+        'access_token':credencial.token_kanal
+    }
+
+    response = MEOKanal.post('https://services.sapo.pt/IPTV/MEO/Kanal/api/videos/prepare_upload',
+                        data=data, headers={'accept':'application/json'})
+
+    response = json.loads(response)
+
+    redir = response.content['data']['redir']
+    upload_token = response.content['data']['token']
+
+    params = {
+        'token':upload_token, 
+        'redir':redir
+    }
+    response = MEOKanal.post('http://uploader.nexttv.sapo.pt/upload_token.html',
+                    data=params, files={'content_file':f_cloud})
+
+    response = json.loads(response)
+
+    if response.content['success']:
+        print "File uploaded to MEOKanal"
+        return True
+    else:
+        return False  
+
+def getCloudContent(credencial, path):
+    # GET Content from path
+
+    cloud = OAuth1Service (
+        name='CodebitsAPP',
+        consumer_key='b36e70f8-d8c1-4805-8402-bd06cdc432dc',
+        consumer_secret='53769013013732849764145905535233908903',
+        access_token_url='https://cloudpt.pt/oauth/access_token',
+        authorize_url='https://cloudpt.pt/oauth/authorize',
+        request_token_url='https://cloudpt.pt/oauth/request_token',
+        header_auth=True
+    )
+
+    response = cloud.get('https://api-content.cloudpt.pt/Storage/CloudPT/List/cloudpt'+path,
+                   access_token=credencial.token_cloud,
+                   access_token_secret=credencial.secret_cloud,
+                   isFile=False).content
+
+    return json.loads(response)
