@@ -1,14 +1,15 @@
 {% include "header.html" %}
 <body>
-	<div class="topbar" data-scrollspy="scrollspy">
-		<div class="topbar-inner">
-			<div class="container">
-				<a class="brand" href="/">Painel de controlo do Serviço</a>
-				<ul class="nav">
-					<li class="">
-						<a href="/logout">Sair</a>
-					</li>
-				</ul>
+	<div class="navbar navbar-fixed-top">
+        <div class="navbar-inner">
+            <div class="container">
+                <a class="brand">cloudKanal</a>
+                <ul class="nav">
+                    <li class="active"><a href="#">Dash</a></li>
+                    <li><a href="http://cloupt.pt">Cloudpt</a></li>
+                    <li><a href="http://www.meo.pt/conhecer/maisMEO/meokanal/Pages/MEOKanal_Oquee.aspx">MEO Kanal</a></li>
+                    <li><a href="logout">Sair</a></li>
+                </ul>
 			</div>
 		</div>
 	</div>
@@ -17,8 +18,26 @@
     		<br>
     		<br>
     		<br>
-    		<p>{{estado_cloud}} {% if ativo_cloud %} <a href="cloudtoken"> Dar permissão </a> {%endif%}</p>
-            <p>{{estado_kanal}} {% if ativo_kanal %} <a href="kanaltoken"> Dar permissão </a> {%endif%}</p>
+    		<h1>Painel de permissões</h1>
+    		<p>Para colocar o serviço a funcionar clique ambos os botões para ativar a ligação aos dois serviços e permitir a ligação a funcionar correctamente. Atenção: poderá ter que fazer a autenticação nos respectivos sites.</p>
+    		<br>
+    		<div class="well row">
+    			<div class="span8">
+    				<h4>{{estado_cloud}}</h4> 
+    			</div>
+    			<div class="span3">
+    				{% if ativo_cloud %}<a class="btn btn-large" href="cloudtoken"> Dar permissão </a> {%endif%}
+    			</div>
+    		</div>
+    		<br>
+    		<div class="well row">
+    			<div class="span8">
+            		<h4>{{estado_kanal}}</h4>
+            	</div>
+            	<div class="span3">
+            		{% if ativo_kanal %} <a class="btn btn-large" href="kanaltoken"> Dar permissão </a> {%endif%}
+            	</div>
+        	</div>
     	</div>
     </div>
 

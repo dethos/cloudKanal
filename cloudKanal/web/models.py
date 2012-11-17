@@ -4,11 +4,11 @@ from django.contrib.auth.models import User
 
 class UserCredentials(models.Model):
 	user = models.ForeignKey(User)
-	token_cloud = models.CharField(max_length=150)
+	token_cloud = models.CharField(max_length=150, null=True)
 	secret_cloud = models.CharField(max_length=150, null=True)
-	token_kanal = models.CharField(max_length=150)
-	last = models.TextField()
-	
+	token_kanal = models.CharField(max_length=150, null=True)
+	last = models.TextField(null=True)
+
 class Channel(models.Model):
 	user = models.ForeignKey(User)
 	name = models.CharField(max_length=100)

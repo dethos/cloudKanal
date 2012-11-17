@@ -34,12 +34,19 @@ def ulogin(request):
                 user = User(username=username)
                 user.set_password(password)
                 user.save()
-                credenciais = UserCredentials(user=user)
+                credenciais = UserCredentials()
+                credenciais.user = user
+                credenciais.token_cloud = ""
+                credenciais.token_kanal = ""
+                credenciais.secret_cloud = ""
+                credenciais.last = ""
                 credenciais.save()
+                user = authenticate(username=username, password=password)
                 login(request, user)
                 return HttpResponseRedirect("dash")
             
         except:
+            return render_to_response("home.html", {'message':"erro"}, context_instance=RequestContext(request))
             user = authenticate(username=username, password=password)
             if user is not None:
                 if user.is_active:
@@ -59,7 +66,7 @@ def quit(request):
 
 @login_required
 def dashboard(request):
-    cred= UserCredentials.objects.get(user=request.user)
+    cred = UserCredentials.objects.get(user=request.user)
     if (cred.token_cloud):
         ativo_cloud = False
         estado_cloud = "Os dados do serviço cloudpt já se encontram introduzidos."

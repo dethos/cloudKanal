@@ -1,28 +1,55 @@
 {% include "header.html" %}
 <body>
-
     <div class="container">
-    	<p></p>
-    	<p></p>
-    	<div class="input">
-    		<h1>Identificação:</h1>
-    		{% if message %}<div class="alert-message error">
-    			<a class="close" href="#">×</a>
-    			<p><strong>Oi</strong> {{ message }}</p>
-    		</div>{% endif %}
-	    	<form action="/login" method="post" class="form-stacked">
-	    		{% csrf_token %}
-	    		<label for="user">Nome de Utilizador </label>
-	    		<input id="user" name="username" class="xlarge" size="30" type="text">
-	    		<label for="pass">Password</label> 
-	    		<input id="pass"name="password" class="xlarge" size="30" type="password">
-                <label for="pass">Registo?</label> 
-                <input id="reg" name="registo" type="checkbox">
-	    		</br></br>
-	    		<button class="btn primary">Entrar</button>
-	    	</form>	
-    	</div>
+        <div class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="brand">cloudKanal</a>
+                    <ul class="nav">
+                        <li class="active"><a href="#">Home</a></li>
+                        <!--<li><a href="http://cloupt.pt">Cloudpt</a></li>
+                        <li><a href="http://www.meo.pt/conhecer/maisMEO/meokanal/Pages/MEOKanal_Oquee.aspx">MEO Kanal</a></li>
+                        <li><a href="logout">Sair</a></li>-->
+                    </ul>
+                    <form action="/login" method="post" class="navbar-form pull-right form-inline">
+                        {% csrf_token %}
 
+                        <input id="user" name="username" type="text" placeholder="Username">
+                        <input id="pass"name="password" type="password" placeholder="Password">
+                        <label class="checkbox">
+                            <input id="reg" name="registo" type="checkbox"> Registo?
+                        </label>
+                        <button class="btn primary">Entrar</button>
+                    </form> 
+                </div>
+            </div>
+        </div>
+        <br>
+        <br>
+        <br>
+        <div class="row">
+            {% if message %}<div class="alert alert-block">
+                <p><strong>Atenção</strong> {{ message }}</p>
+            </div>{% endif %}
+    		<p><h1>Faça a gestão dos conteudos do seu MEO Kanal, a partir da nuvem.</h1></p>
+            <br>
+            <iframe style="display: block; margin-left: auto; margin-right: auto;" width="853" height="480" src="http://www.youtube.com/embed/368UOp1cA7Y?rel=0" frameborder="0" allowfullscreen></iframe>
+            <br>
+        </div>
+        <div class="row">
+            <div class="span6">
+                <h2>Como funciona?</h2>
+                <p>Ao associar a sua conta ao serviço, todos videos que colocar num directório especifico, serão disponibilizados no seu MEO Kanal. Para não os voltar a disponibilizar remova-os da pasta. </p>
+            </div>
+            <div class="span6">
+                <h2>O que necessito para usar o serviço?</h2>
+                <ul>
+                    <li>Ser utilizador da serviço cloudpt.pt e ter um MEO Kanal.</li>
+                    <li>Criar uma conta.</li>
+                    <li>Fornecer as devidas permissões ao cloudkanal.</li>
+                </ul>
+            </div<
+        </div>
     </div>
 
 </body>
