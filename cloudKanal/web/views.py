@@ -19,6 +19,37 @@ def home(request):
     else:
         return render_to_response("home.html", {}, context_instance=RequestContext(request))
 
+def create_hook(repository='https://api.github.com/repos/andreesg/goncalves.me', token="498e024392092d9f202adf21edfa1167e256772f"):
+    # Create Webhook request
+    hook = {
+        'name': 'web',
+        'active': True,
+        'config': {
+            'url': 'http://codingbooster.herokuapp.com/hooks/',
+            'content_type': 'json'
+        },
+        'events': [
+            'push',
+            'pull_request'
+        ]
+    }
+
+    # Add auth token to header
+    headers = {"Authorization": "token "+str(token)}
+    url = repository+"/hooks"
+
+    # Send request and parse response
+    r = requests.post(url, headers=headers, data=json.dumps(hook))
+    response = r.json()
+
+    # Check if the request was successfull
+    if r.status_code != 201:
+        return False
+    else:
+        # SAVE HOOK ID
+        hook_id = response["id"]
+        return {'hook_id':hook_id, 'hook_url' : response['url']}
+
 def ulogin(request):
     message = "Use o formulário para efectuar login"
     if request.method == 'POST':
